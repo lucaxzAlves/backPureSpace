@@ -23,32 +23,16 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log("🟢 Conectado ao MongoDB Atlas"))
 .catch((err) => console.error("🔴 Erro ao conectar ao MongoDB", err));
 
-//config do multer pra salvar img 
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-         cb(null, path.join(__dirname, '..', 'front-end', 'public', 'uploads')); 
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname); 
-    }
-});
-
-const upload = multer({ storage: storage });
-
-
 
 
 // Criação de places(sensores)
 
 const PlacesData = require('./PlacesModel')
 
-app.post('/send/places', upload.single('img'), async (req, res) => {
-  const { id, name, desc, position } = req.body; 
+app.post('/send/places', async (req, res) => {
+  const { id, name, desc, position, img } = req.body; 
   const parsedPosition = JSON.parse(position);   
-  const file = req.file;
-  const imgURL = `uploads/${file.filename}`;
-
+  
 
   try {
     const sameId = await PlacesData.findOne({ id });
@@ -58,7 +42,7 @@ app.post('/send/places', upload.single('img'), async (req, res) => {
       return res.status(400).json({ message: 'Já existe um sensor com este ID ou nome.' });
     }
  
-    const newPlace = new PlacesData({ id, name, desc, position: parsedPosition, img: imgURL });
+    const newPlace = new PlacesData({ id, name, desc, position: parsedPosition, img });
     await newPlace.save();
     console.log("Sensor criado:", name, id);
     res.status(200).send("Dados recebidos e salvos com sucesso!");
