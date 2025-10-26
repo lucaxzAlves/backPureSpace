@@ -8,7 +8,6 @@ const fs = require('fs')
 
 const path = require('path');
 
-
 //app.use(express.static(path.join(__dirname, '../front-end')));
 
 app.use(cors()); 
@@ -52,33 +51,21 @@ app.post('/send/places', async (req, res) => {
   }
 });
 
-app.patch('/update/places', upload.single('img'), async (req, res) => {
+app.patch('/update/places', async (req, res) => {
   
-  const { id, name, desc, position } = req.body; 
+  const { id, name, desc, position, img } = req.body; 
   const parsedPosition = JSON.parse(position);  
   const place = await PlacesData.findOne({ id }) 
-  const file = req.file;
-  const filePath = path.join(__dirname, '..', 'front-end', 'public', place.img );
-  let imageUrl = place.img;
-
-  if(file) {
-   imageUrl = `uploads/${file.filename}`
-    fs.unlink(filePath, (err) => {
-  if (err) {
-    console.error('Erro ao deletar o arquivo:', err);
-  } else {
-    console.log('Arquivo deletado com sucesso!');
-  }
-});
-  }
   
 
+  
+  
 try {
  await PlacesData.updateOne({ id },{ $set: {
   name: name,
   desc: desc,
   position: parsedPosition,
-  img: imageUrl
+  img: img
  }})
  
  res.status(200).send("Sensor atualizado com sucesso!");
@@ -94,22 +81,7 @@ try {
 app.delete('/delete/places/:id', async (req, res) => {
   const { id } = req.params
 
-  const place = await PlacesData.findOne({ id })
-
   const deleted = await PlacesData.deleteOne({ id })
-
-   const filePath = path.join(__dirname, '..', 'front-end', 'public', place.img );
-
-  
-
-   fs.unlink(filePath, (err) => {
-        if (err) {
-            console.error('Erro ao deletar o arquivo:', err);
-            return res.status(500).send('Erro ao deletar o arquivo');
-        }
-        console.log('Arquivo deletado com sucesso:');
-        res.send('Arquivo deletado com sucesso');
-    });
 
    if (deleted.deletedCount === 0) {
       return res.status(404).send('Item não encontrado');
