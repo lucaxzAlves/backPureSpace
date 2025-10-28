@@ -30,7 +30,6 @@ const PlacesData = require('./PlacesModel')
 
 app.post('/send/places', async (req, res) => {
   const { id, name, desc, position, img } = req.body; 
-  const parsedPosition = JSON.parse(position);   
   
 
   try {
@@ -41,7 +40,7 @@ app.post('/send/places', async (req, res) => {
       return res.status(400).json({ message: 'Já existe um sensor com este ID ou nome.' });
     }
  
-    const newPlace = new PlacesData({ id, name, desc, position: parsedPosition, img });
+    const newPlace = new PlacesData({ id, name, desc, position, img });
     await newPlace.save();
     console.log("Sensor criado:", name, id);
     res.status(200).send("Dados recebidos e salvos com sucesso!");
