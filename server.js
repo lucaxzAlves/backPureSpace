@@ -49,7 +49,6 @@ app.post('/send/places', async (req, res) => {
 app.patch('/update/places', async (req, res) => {
   
   const { id, name, desc, position, img } = req.body; 
-  const parsedPosition = JSON.parse(position);  
   const place = await PlacesData.findOne({ id }) 
   
 
@@ -59,7 +58,7 @@ try {
  await PlacesData.updateOne({ id },{ $set: {
   name: name,
   desc: desc,
-  position: parsedPosition,
+  position: position,
   img: img
  }})
  
