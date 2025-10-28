@@ -269,6 +269,27 @@ Dados recebidos:
 - CO₂: ${ppm} ppm
 - Descrição do local: ${desc}
 
+use isso como base(quero emojis nas exatas mesmas posições variando de acordo com a analise):
+  titulo: "❄️ Frio seco e bem ventilado",
+    explicacao: "Ambiente frio, seco e com boa ventilação. Desconfortável por longos períodos, mas não crítico.",
+    causas: [
+      "Clima externo frio e seco",
+      "Ventilação contínua",
+      "Pouco fluxo de pessoas"
+    ],
+    impacto: [
+      "Ressecamento das vias respiratórias",
+      "Rigidez muscular",
+      "Desconforto térmico"
+    ],
+    solucoes: [
+      "Alongamento pré-treino",
+      "Uso de roupas térmicas leves",
+      "Umidificação do ambiente se necessário"
+    ],
+    mensagem: "⚠️ Frio e seco. Aqueça-se e hidrate-se bem.",
+    cor: "amarelo"
+
 Analise todos os fatores juntos e gere uma avaliação completa, consistente e acionável. Retorne somente o JSON, sem texto extra.`
           }
         ]
