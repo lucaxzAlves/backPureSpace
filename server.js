@@ -4,11 +4,7 @@ const mongoose = require('mongoose')
 const cors = require('cors');
 const multer = require('multer')
 const app = express();
-const fs = require('fs')
 
-const path = require('path');
-
-//app.use(express.static(path.join(__dirname, '../front-end')));
 
 app.use(cors()); 
 app.use(express.json())
@@ -239,17 +235,65 @@ app.get('/api/mediasmonth/:id', async (req, res) => {
 
 
 
-//resposta do webhook
 
-app.post('/webhook-resposta', (req, res) => {
-  const { local, mensagemGerada } = req.body;
+app.post('/analyse', async (req, res) => {
+  const { temp, hum, ppm, desc } = req.body;
 
-  console.log(`Recebi avaliação do local ${local}:`);
-  console.log(mensagemGerada);
+  try {
+    const agentRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-3.3-8b-instruct:free",
+        messages: [
+          {
+            role: "system",
+            content: `Você é um especialista em qualidade do ar. Retorne somente um JSON válido com a estrutura:
+{
+  "titulo": "...",
+  "explicacao": "...",
+  "causas": ["...","...","..."],
+  "impacto": ["...","...","..."],
+  "solucoes": ["...","...","..."],
+  "mensagem": "...",
+  "cor": "verde|amarelo|laranja|vermelho"
+}
+obs: cada item das listas deve ter no máximo 5 palavras.
 
-  
-  res.sendStatus(200); 
+Dados recebidos:
+- Temperatura: ${temp}°C
+- Umidade: ${hum}%
+- CO₂: ${ppm} ppm
+- Descrição do local: ${desc}
+
+Analise todos os fatores juntos e gere uma avaliação completa, consistente e acionável. Retorne somente o JSON, sem texto extra.`
+          }
+        ]
+      })
+    });
+
+    const data = await agentRes.json();
+    const content = data.choices[0].message.content;
+
+    let json;
+    try {
+      json = JSON.parse(content);
+    } catch (e) {
+      console.error("Erro ao parsear JSON:", e);
+      json = { erro: "Modelo retornou JSON inválido", raw: content };
+    }
+
+    res.json(json);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Falha ao gerar avaliação" });
+  }
 });
+
 
 
 // Quando o servidor estiver "pronto"
