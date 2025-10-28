@@ -276,6 +276,7 @@ Analise todos os fatores juntos e gere uma avaliação completa, consistente e a
     });
 
     const data = await agentRes.json();
+    console.log(data)
     const content = data.choices[0].message.content;
 
     let json;
